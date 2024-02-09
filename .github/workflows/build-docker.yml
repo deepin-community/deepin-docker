@@ -1,0 +1,61 @@
+name: build rootfs
+
+on:
+  push:
+    branches: [ 'master' ]
+    paths:
+      - 'build.sh'
+      - 'Dockerfile'
+  pull_request:
+    branches: [ 'master' ]
+    paths:
+      - 'build.sh'
+      - 'Dockerfile'
+  workflow_dispatch:
+
+env:
+  owner: linuxdeepin
+
+jobs:
+  build:
+    name: Build tar file
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [ amd64, arm64, riscv64, loong64, i386 ]
+        codename: [ beige ]
+
+    steps:
+      - name: Read Rootfs version
+        run: |
+          echo "ROOTFS_VERSION=$(curl -s https://raw.githubusercontent.com/deepin-community/deepin-rootfs/master/version.txt | cat)" >> $GITHUB_ENV
+        shell: bash
+        env:
+          GITHUB_ENV: ${{ env.GITHUB_ENV }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build beige images
+        run: |
+          sudo bash build.sh ${{ matrix.codename }} ${{ matrix.arch }} "v${{ env.ROOTFS_VERSION }}"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Docker image push
+        run: |
+          docker push ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}"
+          if [ "${{ matrix.arch }}" == "amd64" ]; then
+            if [ "${{ matrix.codename }}" == "beige" ]; then
+              docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:latest"
+              docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:beige"
+              docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:23"
+              docker push "${{ env.owner }}/deepin:latest"
+              docker push "${{ env.owner }}/deepin:beige"
+              docker push "${{ env.owner }}/deepin:23"
+            fi
+          fi
