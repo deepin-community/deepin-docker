@@ -26,6 +26,12 @@ jobs:
         codename: [ beige ]
 
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Read Rootfs version
         run: |
           echo "ROOTFS_VERSION=$(curl -s https://raw.githubusercontent.com/deepin-community/deepin-rootfs/master/version.txt | cat)" >> $GITHUB_ENV
