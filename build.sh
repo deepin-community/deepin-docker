@@ -12,4 +12,4 @@ ROOTFS_URL=https://github.com/deepin-community/deepin-rootfs/releases/download/$
 
 curl -OLS $ROOTFS_URL
 
-docker build --build-arg ROOTFS=$ROOTFS -t ${OWNER}/deepin:${CODENAME}-${ARCH}-${VERSION} .
+docker buildx build --platform linux/${ARCH} --build-arg ROOTFS=$ROOTFS -t ${OWNER}/deepin:${CODENAME}-${ARCH}-${VERSION} .
