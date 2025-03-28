@@ -1,4 +1,4 @@
-name: build rootfs
+name: build docker
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         arch: [ amd64, arm64, riscv64, loong64, i386 ]
-        codename: [ beige ]
+        codename: [ beige-25 ]
 
     steps:
       - name: Set up QEMU
@@ -56,12 +56,10 @@ jobs:
         run: |
           docker push ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}"
           if [ "${{ matrix.arch }}" == "amd64" ]; then
-            if [ "${{ matrix.codename }}" == "beige" ]; then
-              docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:latest"
-              docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:beige"
-              docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:23"
-              docker push "${{ env.owner }}/deepin:latest"
-              docker push "${{ env.owner }}/deepin:beige"
-              docker push "${{ env.owner }}/deepin:23"
-            fi
+            docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:latest"
+            docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:${{ matrix.codename }}"
+            docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:25"
+            docker push "${{ env.owner }}/deepin:latest"
+            docker push "${{ env.owner }}/deepin:${{ matrix.codename }}"
+            docker push "${{ env.owner }}/deepin:25"
           fi
