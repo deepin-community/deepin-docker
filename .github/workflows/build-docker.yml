@@ -55,6 +55,11 @@ jobs:
       - name: Docker image push
         run: |
           docker push ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}"
+          docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}"
+          docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:${{ matrix.arch }}"
+          docker push ${{ env.owner }}/deepin:${{ matrix.arch }}
+          docker push ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}
+
           if [ "${{ matrix.arch }}" == "amd64" ]; then
             docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:latest"
             docker tag ${{ env.owner }}/deepin:${{ matrix.codename }}-${{ matrix.arch }}-"v${{ env.ROOTFS_VERSION }}" "${{ env.owner }}/deepin:${{ matrix.codename }}"
