@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         arch: [ amd64, arm64, riscv64, loong64, i386 ]
-        codename: [ beige-25 ]
+        codename: [ crimson ]
 
     steps:
       - name: Set up QEMU
@@ -42,7 +42,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build beige images
+      - name: Build crimson images
         run: |
           sudo bash build.sh ${{ matrix.codename }} ${{ matrix.arch }} "v${{ env.ROOTFS_VERSION }}"
 
